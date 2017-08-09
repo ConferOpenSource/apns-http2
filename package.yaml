@@ -5,7 +5,7 @@ homepage:            https://github.com/ConferHealth/apns-http2#readme
 license:             BSD3
 license-file:        LICENSE
 author:              Confer Health, Inc.
-maintainer:          oss@confer.care
+maintainer:          oss@confer.health
 copyright:           2017 Confer Health, Inc.
 category:            Network
 

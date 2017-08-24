@@ -11,10 +11,10 @@ clean:
 	stack clean
 
 reallyclean:
-	rm -rf .stack-work */.stack-work _sdists
+	rm -rf .stack-work _sdists
 
 sdist: reallyclean build
 	stack sdist
 	mkdir -p _sdists
-	cp */.stack-work/dist/*/*/*.tar.gz _sdists
+	cp .stack-work/dist/*/*/*.tar.gz _sdists
 

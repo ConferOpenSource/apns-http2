@@ -358,6 +358,7 @@ writePhase = do
       unless (connWindow <= 0) $ do
         let toWriteSize = min maxFrameSize . min connWindow . view writableStream_windowSize $ ws
             (toWriteBs, remainingBs) = BS.splitAt toWriteSize . view writableStream_remaining $ ws
+            didWriteSize = BS.length toWriteBs
 
         if BS.null remainingBs
           then do
@@ -369,10 +370,10 @@ writePhase = do
             processorDebug $ "stream " <> (pack . show) sid <> " writing " <> (pack . show) toWriteSize <> " bytes with " <> (pack . show) (BS.length remainingBs) <> " bytes to go"
             processorWrite (H2.encodeInfo id sid) (H2.DataFrame toWriteBs)
             modifying (state_writableStreams . at sid . _Just)
-              $ over writableStream_windowSize (subtract toWriteSize)
+              $ over writableStream_windowSize (subtract didWriteSize)
               . set writableStream_remaining remainingBs
 
-        modifying state_connectionWindow (subtract toWriteSize)
+        modifying state_connectionWindow (subtract didWriteSize)
 
         go wses
 

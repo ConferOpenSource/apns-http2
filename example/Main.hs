@@ -1,5 +1,6 @@
 module Main where
 
+import Control.Concurrent (threadDelay)
 import Control.Concurrent.MVar (newEmptyMVar, takeMVar, putMVar)
 import Data.Aeson (encode)
 import Data.Aeson.QQ (aesonQQ)
@@ -7,6 +8,7 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Base16 as Base16
 import qualified Data.ByteString.Char8 as BSC8
 import qualified Data.ByteString.Lazy as BL
+import Data.Foldable (for_)
 import Data.Monoid ((<>))
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
@@ -49,28 +51,34 @@ main = do
     Left connectError ->
       putStrLn $ "Failed to connect: " <> show connectError
     Right connection -> do
-      now <- getCurrentTime
-      let _apnsPushData_deviceToken = deviceToken
-          _apnsPushData_expiration = addUTCTime (86400*2) now
-          _apnsPushData_priority = Nothing
-          _apnsPushData_topic = topic
-          _apnsPushData_collapseId = Nothing
-          _apnsPushData_payload = BL.toStrict $ encode [aesonQQ|
-            {
-              "aps": {
-                "alert": {
-                  "title": "Hello, APNs!",
-                  "body": "If you're reading this you're too close to a working integration"
+      for_ [1..(100 :: Int)] $ \ _ -> do
+        now <- getCurrentTime
+        let _apnsPushData_deviceToken = deviceToken
+            _apnsPushData_expiration = addUTCTime (86400*2) now
+            _apnsPushData_priority = Nothing
+            _apnsPushData_topic = topic
+            _apnsPushData_collapseId = Nothing
+            _apnsPushData_payload = BL.toStrict $ encode [aesonQQ|
+              {
+                "aps": {
+                  "alert": {
+                    "title": "Hello, APNs!",
+                    "body": "If you're reading this you're too close to a working integration"
+                  },
+                  "badge": 1
                 },
-                "badge": 1
+                "additionalStuff": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                "additionalStuff5": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
               }
-            }
-            |]
+              |]
 
-      _apnsConnection_submitPush connection $ ApnsPush (ApnsPushData {..}) $ \ res -> do
-        putStrLn . ("push result: " <>) . show $ res
-        putStrLn "closing connection"
-        _apnsConnection_close connection
+        _apnsConnection_submitPush connection $ ApnsPush (ApnsPushData {..}) $ \ res -> do
+          putStrLn . ("push result: " <>) . show $ res
+
+        threadDelay 2000000
+
+      putStrLn "closing connection"
+      _apnsConnection_close connection
 
       terminationReason <- takeMVar terminationMv
       putStrLn . ("Connection terminated: " <>) . show $ terminationReason

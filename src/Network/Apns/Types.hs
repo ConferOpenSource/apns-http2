@@ -145,7 +145,7 @@ makeLenses ''ApnsError
 -- |The result of a push delivery attempt.
 data ApnsPushResult
   = ApnsPushDelivered ByteString
-  -- ^The push was successfully delivered to APNs along with its assigned @apns-id@. It may or may not be delivered to the target device, at the discretion 
+  -- ^The push was successfully delivered to APNs along with its assigned @apns-id@. It may or may not be delivered to the target device, at the discretion
   -- of APNs.
   | ApnsPushErrored ApnsError
   -- ^APNs rejected the push notification. See the 'ApnsError' for more detail.
@@ -179,10 +179,12 @@ data ApnsTerminationReason
   = ApnsTerminatedLocally
   -- ^The APNs connection was locally closed using '_apnsConnection_close'.
   | ApnsTerminatedRemotely (Either ByteString ApnsErrorReason)
-  -- ^The APNs connection was remotely closed by APNs. The APNs error reason is given as @Right@ if available, otherwise some other error string 
+  -- ^The APNs connection was remotely closed by APNs. The APNs error reason is given as @Right@ if available, otherwise some other error string
   -- given as @Left@.
   | ApnsTerminatedHttp2Error HTTP2Error
   -- ^The APNs connection was terminated due to an HTTP/2 protocol error.
+  | ApnsTerminatedSilentlyClosed
+  -- ^The APNs connection was terminated because a foreign entity closed the TCP stream and no reason was provided.
   | ApnsTerminatedInsufficientHeaderBytes
   -- ^The APNs connection was terminated because the TCP stream ended before being able to read all the header bytes for an HTTP/2 frame.
   | ApnsTerminatedInsufficientPayloadBytes FrameTypeId

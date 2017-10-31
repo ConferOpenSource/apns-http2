@@ -23,6 +23,7 @@ import Control.Lens.TH (makeLenses, makePrisms)
 import Data.Aeson ((.:), (.:?), Value, eitherDecode', withObject)
 import Data.Aeson.Types (Parser, parseEither)
 import Data.Bifunctor (first)
+import Data.Bool (bool)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import Data.ByteString.Builder (byteStringHex, toLazyByteString)
@@ -757,7 +758,10 @@ reader debugLog tlsContext sock readerQueue = do
       either yield continue <=< runExceptT $ do
         headerBytes <- lift $ BL.toStrict <$> CB.take H2.frameHeaderLength
         when (BS.length headerBytes < H2.frameHeaderLength) $
-          throwError (ReadH2Error H2.ProtocolError "Insufficient header bytes" ApnsTerminatedInsufficientHeaderBytes)
+          bool
+            (throwError (ReadH2Error H2.ProtocolError "Insufficient header bytes" ApnsTerminatedInsufficientHeaderBytes))
+            (throwError (ReadH2Error H2.StreamClosed "Closed with no data" ApnsTerminatedSilentlyClosed))
+            (BS.null headerBytes)
 
         (frameType, frameHeader) <-
           either (\ h2Error -> throwError $ ReadH2Error (H2.errorCodeId h2Error) (BSC8.pack . show $ h2Error) (ApnsTerminatedHttp2Error h2Error)) pure $

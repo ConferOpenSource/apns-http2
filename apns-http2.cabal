@@ -1,4 +1,4 @@
--- This file has been generated from package.yaml by hpack version 0.18.1.
+-- This file has been generated from package.yaml by hpack version 0.19.3.
 --
 -- see: https://github.com/sol/hpack
 
@@ -21,9 +21,9 @@ library
   default-extensions: FlexibleContexts FlexibleInstances LambdaCase NamedFieldPuns NoMonomorphismRestriction OverloadedStrings QuasiQuotes RankNTypes RecordWildCards ScopedTypeVariables TemplateHaskell TupleSections ViewPatterns
   ghc-options: -Wall -O2
   build-depends:
-      base >= 4.7 && < 5
-    , aeson
+      aeson
     , async
+    , base >=4.7 && <5
     , bytestring
     , conduit
     , conduit-extra
@@ -60,9 +60,12 @@ executable apns-http2-example
   default-extensions: FlexibleContexts FlexibleInstances LambdaCase NamedFieldPuns NoMonomorphismRestriction OverloadedStrings QuasiQuotes RankNTypes RecordWildCards ScopedTypeVariables TemplateHaskell TupleSections ViewPatterns
   ghc-options: -Wall -O2 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >= 4.7 && < 5
-    , aeson
+      aeson
+    , aeson-qq
+    , apns-http2
     , async
+    , base >=4.7 && <5
+    , base16-bytestring
     , bytestring
     , conduit
     , conduit-extra
@@ -83,9 +86,8 @@ executable apns-http2-example
     , tls
     , x509
     , x509-store
-    , x509-validation
-    , aeson-qq
-    , apns-http2
-    , base16-bytestring
     , x509-system
+    , x509-validation
+  other-modules:
+      Paths_apns_http2
   default-language: Haskell2010

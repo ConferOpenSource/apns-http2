@@ -1,6 +1,8 @@
--- This file has been generated from package.yaml by hpack version 0.19.3.
+-- This file has been generated from package.yaml by hpack version 0.27.0.
 --
 -- see: https://github.com/sol/hpack
+--
+-- hash: c5a7666ae23eab6f0184b5a5a2fae4e0b1664c2c3604e7948df3b21b4beefb2f
 
 name:           apns-http2
 version:        0.1.0.0

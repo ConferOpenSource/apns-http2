@@ -29,7 +29,7 @@ import qualified Data.ByteString as BS
 import Data.ByteString.Builder (byteStringHex, toLazyByteString)
 import qualified Data.ByteString.Char8 as BSC8
 import qualified Data.ByteString.Lazy as BL
-import Data.Conduit (ConduitM, Producer, (.|), ($$), awaitForever, yield)
+import Data.Conduit (ConduitM, (.|), awaitForever, yield, runConduit)
 import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List as CL
 import Data.Conduit.TQueue (sinkTBMQueue, sourceTBMQueue)
@@ -728,11 +728,11 @@ encodeHeaderBlockFragments maxFrameSize dynTbl headers = do
 -- |Reader thread. Before this exits, some debug log will be emitted, the socket will be shut down for reads, and the reader queue will be closed.
 reader :: (Text -> IO ()) -> TLS.Context -> Socket -> TBMQueue ReaderEvent -> IO ()
 reader debugLog tlsContext sock readerQueue = do
-  res <- try
+  res <- try $ runConduit
     $  sourceTls
-    $$ decodeH2Frames H2.defaultSettings
+    .| decodeH2Frames H2.defaultSettings
     .| CL.iterM (debugLog . ("received: " <>) . pack . show)
-    .| sinkTBMQueue readerQueue True
+    .| sinkTBMQueue readerQueue
 
   atomically $ closeTBMQueue readerQueue
   invokeWithoutException $ Socket.shutdown sock Socket.ShutdownReceive
@@ -745,7 +745,7 @@ reader debugLog tlsContext sock readerQueue = do
       debugLog "reader ended normally"
 
   where
-    sourceTls :: Producer IO ByteString
+    sourceTls :: forall i. ConduitM i ByteString IO ()
     sourceTls =
       liftIO (TLS.recvData tlsContext) >>= \ case
         bs | BS.null bs -> pure ()
@@ -795,9 +795,9 @@ reader debugLog tlsContext sock readerQueue = do
 -- |Writer thread. Before this exits, some debug log will be emitted, the socket will be shut down for writes, and the writer queue will be closed.
 writer :: (Text -> IO ()) -> TLS.Context -> Socket -> TBMQueue (H2.EncodeInfo, H2.FramePayload) -> IO ()
 writer debugLog tlsContext sock writerQueue = do
-  res <- try
+  res <- try $ runConduit
     $  sourceTBMQueue writerQueue
-    $$ CL.iterM (debugLog . ("sending: " <>) . pack . show)
+    .| CL.iterM (debugLog . ("sending: " <>) . pack . show)
     .| CL.concatMap (map BL.fromStrict . uncurry H2.encodeFrameChunks)
     .| awaitForever (TLS.sendData tlsContext)
 
@@ -812,4 +812,3 @@ writer debugLog tlsContext sock writerQueue = do
       throwIO ex
     Right _ ->
       debugLog "writer ended normally"
-

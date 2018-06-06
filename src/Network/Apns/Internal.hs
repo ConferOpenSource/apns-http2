@@ -29,7 +29,7 @@ import qualified Data.ByteString as BS
 import Data.ByteString.Builder (byteStringHex, toLazyByteString)
 import qualified Data.ByteString.Char8 as BSC8
 import qualified Data.ByteString.Lazy as BL
-import Data.Conduit (ConduitM, (.|), awaitForever, yield, runConduit)
+import Data.Conduit (ConduitT, (.|), awaitForever, yield, runConduit)
 import qualified Data.Conduit.Binary as CB
 import qualified Data.Conduit.List as CL
 import Data.Conduit.TQueue (sinkTBMQueue, sourceTBMQueue)
@@ -745,13 +745,13 @@ reader debugLog tlsContext sock readerQueue = do
       debugLog "reader ended normally"
 
   where
-    sourceTls :: forall i. ConduitM i ByteString IO ()
+    sourceTls :: forall i. ConduitT i ByteString IO ()
     sourceTls =
       liftIO (TLS.recvData tlsContext) >>= \ case
         bs | BS.null bs -> pure ()
            | otherwise  -> yield bs >> sourceTls
 
-    decodeH2Frames :: H2.Settings -> ConduitM ByteString ReaderEvent IO ()
+    decodeH2Frames :: H2.Settings -> ConduitT ByteString ReaderEvent IO ()
     decodeH2Frames settings = do
       let continue (eventMay, settings') = traverse_ yield eventMay >> decodeH2Frames settings'
 

@@ -1,3 +1,12 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE ViewPatterns #-}
 module Network.Apns.Internal where
 
 import Control.Applicative ((<|>))
@@ -60,7 +69,6 @@ import Network.Apns.Types
   , ApnsPushResult(..)
   , ApnsTerminationReason(..)
   )
-import Network.BSD (getProtocolNumber)
 import qualified Network.HPACK as HP
 import qualified Network.HTTP2 as H2
 import Network.Socket (Socket)
@@ -208,10 +216,8 @@ connectApns params@(ApnsConnectionParams {..}) =
 
     connectSocket :: ExceptT ApnsConnectionError IO Socket
     connectSocket = do
-      tcp <- liftIO $ getProtocolNumber "tcp"
       let hints = Socket.defaultHints
             { Socket.addrFlags      = [Socket.AI_ADDRCONFIG]
-            , Socket.addrProtocol   = tcp
             , Socket.addrSocketType = Socket.Stream
             }
       addressInfos <- liftIO $ Socket.getAddrInfo (Just hints) (Just _apnsConnectionParams_hostName) (Just . show $ _apnsConnectionParams_portNumber)

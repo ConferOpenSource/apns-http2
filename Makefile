@@ -2,7 +2,7 @@
 .PHONY: build update-build clean reallyclean sdist
 
 build: update-build
-	stack test --ghc-options="-Wall -Werror"
+	stack test --ghc-options="-Wall -Werror" --no-interleaved-output
 
 update-build:
 	nix-shell update-build-shell.nix --run ./update-build.sh

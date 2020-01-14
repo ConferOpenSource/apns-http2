@@ -1,12 +1,12 @@
 name:                apns-http2
-version:             0.1.0.0
+version:             0.1.1.0
 synopsis:            Apple Push Notification service HTTP/2 integration.
-homepage:            https://github.com/ConferHealth/apns-http2#readme
+homepage:            https://github.com/ConferOpenSource/apns-http2#readme
 license:             BSD3
 license-file:        LICENSE
 author:              Confer Health, Inc.
-maintainer:          oss@confer.health
-copyright:           2017 Confer Health, Inc.
+maintainer:          oss@vitalbio.com
+copyright:           2017 Confer Health, Inc., 2020 Vital Biosciences
 category:            Network
 
 dependencies:
@@ -34,21 +34,6 @@ dependencies:
   - x509
   - x509-store
   - x509-validation
-
-default-extensions:
-  - FlexibleContexts
-  - FlexibleInstances
-  - LambdaCase
-  - NamedFieldPuns
-  - NoMonomorphismRestriction
-  - OverloadedStrings
-  - QuasiQuotes
-  - RankNTypes
-  - RecordWildCards
-  - ScopedTypeVariables
-  - TemplateHaskell
-  - TupleSections
-  - ViewPatterns
 
 ghc-options: -Wall -O2
 

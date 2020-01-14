@@ -1,26 +1,26 @@
--- This file has been generated from package.yaml by hpack version 0.27.0.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c5a7666ae23eab6f0184b5a5a2fae4e0b1664c2c3604e7948df3b21b4beefb2f
+-- hash: db7c14d46fbfd626dfd55743886a8027e59c28ee11fce7ea2e14e693bacba209
 
 name:           apns-http2
-version:        0.1.0.0
+version:        0.1.1.0
 synopsis:       Apple Push Notification service HTTP/2 integration.
 category:       Network
-homepage:       https://github.com/ConferHealth/apns-http2#readme
+homepage:       https://github.com/ConferOpenSource/apns-http2#readme
 author:         Confer Health, Inc.
-maintainer:     oss@confer.health
-copyright:      2017 Confer Health, Inc.
+maintainer:     oss@vitalbio.com
+copyright:      2017 Confer Health, Inc., 2020 Vital Biosciences
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
-cabal-version:  >= 1.10
 
 library
   hs-source-dirs:
       src
-  default-extensions: FlexibleContexts FlexibleInstances LambdaCase NamedFieldPuns NoMonomorphismRestriction OverloadedStrings QuasiQuotes RankNTypes RecordWildCards ScopedTypeVariables TemplateHaskell TupleSections ViewPatterns
   ghc-options: -Wall -O2
   build-depends:
       aeson
@@ -59,7 +59,6 @@ executable apns-http2-example
   main-is: Main.hs
   hs-source-dirs:
       example
-  default-extensions: FlexibleContexts FlexibleInstances LambdaCase NamedFieldPuns NoMonomorphismRestriction OverloadedStrings QuasiQuotes RankNTypes RecordWildCards ScopedTypeVariables TemplateHaskell TupleSections ViewPatterns
   ghc-options: -Wall -O2 -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson

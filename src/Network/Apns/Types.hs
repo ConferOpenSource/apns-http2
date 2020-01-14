@@ -1,3 +1,6 @@
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 -- |Public types for using the APNs integration.
 module Network.Apns.Types
   ( ApnsPushData(..), apnsPushData_deviceToken, apnsPushData_expiration, apnsPushData_priority, apnsPushData_topic, apnsPushData_collapseId, apnsPushData_payload
